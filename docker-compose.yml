@@ -1,0 +1,66 @@
+# docker-compose.yml
+# ไฟล์นี้ใช้ Docker Compose เพื่อสร้างสภาพแวดล้อมการพัฒนาเว็บไซต์
+# โดยมี service หลักคือ Apache/PHP, MySQL, และ PHPMyAdmin
+# version: '3.8'
+
+services:
+  # Service สำหรับเว็บเซิร์ฟเวอร์ (Apache with PHP 8.1)
+  # ใช้ Dockerfile ที่กำหนดเองเพื่อติดตั้ง PHP extensions ที่จำเป็น
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.webserver
+    container_name: gov-webserver
+    ports:
+      # เปิดพอร์ต 8080 บนเครื่อง Host เพื่อเข้าถึงเว็บไซต์
+      - "8080:80"
+    volumes:
+      # Mount โฟลเดอร์ public_html บน Host เข้ากับโฟลเดอร์ DocumentRoot ใน Container
+      - ./public_html:/var/www/html/public_html
+      # Mount โฟลเดอร์ Apache config
+      - ./docker/apache/000-default.conf:/etc/apache2/sites-available/000-default.conf
+    # กำหนดให้ webserver รันหลังจาก database พร้อมใช้งานแล้ว
+    depends_on:
+      - database
+    restart: always
+
+  # Service สำหรับฐานข้อมูล (MySQL 8)
+  database:
+    image: mysql:8.0
+    container_name: gov-database
+    environment:
+      # กำหนดตัวแปรสภาพแวดล้อมสำหรับฐานข้อมูล
+      MYSQL_ROOT_PASSWORD: gov_root_password
+      MYSQL_DATABASE: gov_db
+      MYSQL_USER: gov_user
+      MYSQL_PASSWORD: gov_password
+    # สร้าง volume สำหรับเก็บข้อมูลฐานข้อมูล เพื่อให้ข้อมูลไม่หายเมื่อ Container ถูกลบ
+    volumes:
+      - ./database_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+
+  # Service สำหรับ PHPMyAdmin เพื่อจัดการฐานข้อมูลผ่านเว็บ
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: gov-phpmyadmin
+    environment:
+      # กำหนดตัวแปรสภาพแวดล้อมเพื่อเชื่อมต่อกับ database service
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: gov_root_password
+    ports:
+      - "8081:80"
+    restart: always
+    depends_on:
+      - database
+
+  # Service สำหรับ PHP-CLI เพื่อรันคำสั่งต่างๆ เช่น Composer, Artisan, Spark
+  # ใช้ image เดียวกับ webserver เพื่อให้ extensions เหมือนกัน
+  php_cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.webserver
+    container_name: gov-php-cli
+    volumes:
+      - ./public_html:/var/www/html/public_html

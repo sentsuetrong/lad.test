@@ -1,0 +1,11 @@
+#
+#<?php die('Forbidden.'); ?>
+#Date: 2025-09-02 07:25:20 UTC
+#Software: Joomla! 5.3.3 Stable [ Timu ] 19-August-2025 16:00 GMT
+
+#Fields: date	time	priority	message
+2025-09-02	07:25:20	INFO	กำลังเรียกใช้งาน#02 'Session GC'
+2025-09-02	07:25:20	INFO	งาน> SessionGC end
+2025-09-02	07:25:20	INFO	เสร็จสิ้นภาระกิจ งาน#02 ใน 0.00 (สุทธิ 0.01) วินาที
+2025-09-02	07:30:20	INFO	กำลังเรียกใช้งาน#03 'Update Notification'
+2025-09-02	07:30:22	INFO	เสร็จสิ้นภาระกิจ งาน#03 ใน 1.49 (สุทธิ 1.50) วินาที

@@ -1,0 +1,36 @@
+# Dockerfile.webserver
+# ใช้สำหรับสร้าง Docker Image สำหรับ webserver (Apache + PHP 8.1)
+
+# ใช้ base image ที่มี PHP 8.1 และ Apache
+FROM php:8.1-apache
+
+# กำหนด working directory ภายใน container
+WORKDIR /var/www/html
+
+# ติดตั้ง PHP extensions ที่จำเป็นสำหรับ Joomla และ CodeIgniter 4
+RUN apt-get update && apt-get install -y \
+  libzip-dev \
+  libxml2-dev \
+  libicu-dev \
+  libonig-dev \
+  zip \
+  && docker-php-ext-install -j$(nproc) intl mbstring mysqli pdo_mysql soap zip
+
+# เปิดใช้งาน Apache rewrite module เพื่อรองรับ Friendly URLs ของ Joomla และ CodeIgniter
+RUN a2enmod rewrite
+
+# คัดลอกไฟล์ Apache Virtual Host config เข้าไปใน Container
+# ไฟล์นี้จะชี้ DocumentRoot ไปที่ public_html และกำหนด Alias สำหรับ path ต่างๆ
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# เปิดใช้งาน Virtual Host config
+RUN a2ensite 000-default.conf
+
+# กำหนด DocumentRoot ใหม่ให้ชี้ไปที่ public_html
+RUN sed -i -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/var\/www\/html\/public_html/g' /etc/apache2/sites-available/000-default.conf
+
+# ลบไฟล์ index.html เริ่มต้นของ Apache
+RUN rm -rf /var/www/html/index.html
+
+# expose port 80 เพื่อให้ Apache ทำงาน
+EXPOSE 80
