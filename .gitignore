@@ -2,4 +2,26 @@ node_modules/
 database_data/
 vendor/
 .qoder/
+
+# Joomla cache and logs
+public_html/administrator/cache/
+public_html/administrator/cache/*
+public_html/administrator/logs/
+public_html/administrator/logs/*
+public_html/cache/
+public_html/cache/*
+public_html/tmp/
+public_html/tmp/*
+
+# CodeIgniter cache and logs
+public_html/codeigniter/writable/cache/
+public_html/codeigniter/writable/cache/*
+public_html/codeigniter/writable/logs/
+public_html/codeigniter/writable/logs/*
+public_html/codeigniter/writable/debugbar/
+public_html/codeigniter/writable/debugbar/*
+public_html/codeigniter/writable/session/
+public_html/codeigniter/writable/session/*
+public_html/codeigniter/writable/uploads/
+public_html/codeigniter/writable/uploads/*
 .env
